@@ -7,7 +7,7 @@ import java.util.Set;
  * The expression may include constants, variables, binary operations, and unary function
  * evaluations.
  */
-public interface Expression {
+public sealed interface Expression permits Constant, Variable, Operation, Application {
 
     /**
      * Return the result of evaluating this expression, substituting any variables with their value
@@ -47,6 +47,12 @@ public interface Expression {
      * be modifiable.
      */
     Set<String> dependencies();
+
+    /**
+     * Returns an expression that is the derivative of this expression with respect to the variable
+     * `varName`.
+     */
+    Expression differentiate(String varName);
 
 }
 

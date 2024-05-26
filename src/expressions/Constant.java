@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * An expression tree node representing a fixed real number.
  */
-public class Constant implements Expression {
+public final class Constant implements Expression {
 
     /**
      * The value of this expression.
@@ -88,6 +88,15 @@ public class Constant implements Expression {
         assert vars != null;
 
         return this;
+    }
+
+    /**
+     * Returns the derivative of this constant with respect to `varName`, which will be the zero
+     * constant.
+     */
+    @Override
+    public Expression differentiate(String varName) {
+        return new Constant(0.0);
     }
 
 }

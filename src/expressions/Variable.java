@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * An expression tree node representing a variable
  */
-public class Variable implements Expression {
+public final class Variable implements Expression {
     // Name of the variable
     private String name;
 
@@ -20,7 +20,7 @@ public class Variable implements Expression {
      * Evaluates to value of variable with name `name` in vars. Throws UnboundVariableException if
      * corresponding variable does not exist in vars.
      */
-    @java.lang.Override
+    @Override
     public double eval(VarTable vars) throws UnboundVariableException {
         assert vars != null;
         // If vars doesn't contain `name` throw that we don't have this variable
@@ -31,7 +31,7 @@ public class Variable implements Expression {
     /**
      * Returns 0, since no operations are done to evaluate the value of a variable.
      */
-    @java.lang.Override
+    @Override
     public int opCount() {
         return 0;
     }
@@ -39,7 +39,7 @@ public class Variable implements Expression {
     /**
      * Returns the infix string representation of the Variable, which contains the variable's name.
      */
-    @java.lang.Override
+    @Override
     public String infixString() {
         return name;
     }
@@ -47,7 +47,7 @@ public class Variable implements Expression {
     /**
      * Returns the postfix string representation of the Variable, which contains the variable's name.
      */
-    @java.lang.Override
+    @Override
     public String postfixString() {
         return name;
     }
@@ -55,7 +55,7 @@ public class Variable implements Expression {
     /**
      * Returns self if variable doesn't exist in `vars`, otherwise return value of self as constant
      */
-    @java.lang.Override
+    @Override
     public Expression optimize(VarTable vars) {
         assert vars != null;
         try {
@@ -68,7 +68,7 @@ public class Variable implements Expression {
     /**
      * Returns a String corresponding to variable's own name in a set.
      */
-    @java.lang.Override
+    @Override
     public Set<String> dependencies() {
         HashSet<String> newSet = new HashSet<>();
         newSet.add(name);
@@ -79,7 +79,7 @@ public class Variable implements Expression {
      * Returns whether this Variable and other Variable are equal. Two Variables are equal if they
      * have the same name.
      */
-    @java.lang.Override
+    @Override
     public boolean equals(Object other) {
         if(!(other instanceof Variable)) {
             return false;
@@ -87,5 +87,14 @@ public class Variable implements Expression {
 
         Variable otherVar = (Variable) other;
         return name.equals(otherVar.name);
+    }
+
+    /**
+     * Returns the derivative of this variable with respect to the variable with name `varName`.
+     * Will be the constant 1 if the variables have the same name and 0 otherwise.
+     */
+    @Override
+    public Expression differentiate(String varName) {
+        return name.equals(varName) ? new Constant(1.0) : new Constant(0.0);
     }
 }

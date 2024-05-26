@@ -3,13 +3,16 @@ package expressions;
 import java.util.Set;
 
 /**
- * An expression tree node representing a function
+ * An expression tree node representing a function. differentiate() and optimize() must
+ *  * be implemented in concrete extending subclasses depending on the specific operation.
+ *  Subclasses have protected access to all fields.
  */
-public class Application implements Expression {
+public abstract sealed class Application implements Expression permits SqrtFunc, ExpFunc, LogFunc,
+SinFunc, CosFunc, TanFunc, AbsFunc {
     // Function that takes one argument
-    private UnaryFunction func;
+    protected UnaryFunction func;
     // Argument for the function
-    private Expression argument;
+    protected Expression argument;
 
     // Constructor for application
     public Application(UnaryFunction func, Expression arg) {
@@ -22,7 +25,7 @@ public class Application implements Expression {
      * Returns the result of applying the function to the evaluation of the argument. Throws
      * UnboundVariableException if the expression argument contains a variable not in vars.
      */
-    @java.lang.Override
+    @Override
     public double eval(VarTable vars) throws UnboundVariableException {
         assert vars != null;
         return func.apply(argument.eval(vars));
@@ -31,7 +34,7 @@ public class Application implements Expression {
     /**
      * Returns one plus the number of operations taken to evaluate the argument.
      */
-    @java.lang.Override
+    @Override
     public int opCount() {
         return argument.opCount() + 1;
     }
@@ -40,7 +43,7 @@ public class Application implements Expression {
      * Returns the infix string representation of the Application, which is made up of the name of
      * the function followed by the infix representation of the argument in parentheses.
      */
-    @java.lang.Override
+    @Override
     public String infixString() {
         return func.name() + "(" + argument.infixString() + ")";
     }
@@ -49,31 +52,15 @@ public class Application implements Expression {
      * Returns the postfix string representation of the Application, which is made up of the
      * postfix representation of the argument, then the name of the function with parentheses.
      */
-    @java.lang.Override
+    @Override
     public String postfixString() {
         return argument.postfixString() + " " + func.name() + "()";
     }
 
     /**
-     * If the argument can be optimized to a constant, return a constant that is the evaluation of
-     * the argument. Otherwise, return a partially optimized copy of self where the argument is in
-     * optimized form.
-     */
-    @java.lang.Override
-    public Expression optimize(VarTable vars) {
-        assert vars != null;
-        Expression optArg = argument.optimize(vars);
-        try {
-            return new Constant(new Application(func, optArg).eval(MapVarTable.empty()));
-        } catch (UnboundVariableException e) {
-            return new Application(func, optArg);
-        }
-    }
-
-    /**
      * Returns dependencies of argument
      */
-    @java.lang.Override
+    @Override
     public Set<String> dependencies() {
         return argument.dependencies();
     }
