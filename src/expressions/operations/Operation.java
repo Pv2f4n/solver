@@ -1,4 +1,5 @@
-package expressions;
+package expressions.operations;
+import expressions.*;
 
 import java.util.Set;
 
@@ -8,8 +9,7 @@ import java.util.Set;
  * be implemented in concrete extending subclasses depending on the specific operation. Subclasses
  * have protected access to all fields.
  */
-public abstract sealed class Operation implements Expression permits AddOperation, MultOperation,
-SubOperation, DivOperation, PowOperation {
+public abstract class Operation implements Expression {
     // Operator used in operation
     protected Operator op;
     // Left and right side expressions

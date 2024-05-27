@@ -1,4 +1,5 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
 
 /**
  * An expression node tree representing the absolute value function.
@@ -32,5 +33,13 @@ public final class AbsFunc extends Application {
     @Override
     public Expression differentiate(String varName) {
         return new Constant(1.0);
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new AbsFunc(argument.simplify());
     }
 }

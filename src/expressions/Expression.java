@@ -1,4 +1,6 @@
 package expressions;
+import expressions.functions.*;
+import expressions.operations.*;
 
 import java.util.Set;
 
@@ -7,7 +9,7 @@ import java.util.Set;
  * The expression may include constants, variables, binary operations, and unary function
  * evaluations.
  */
-public sealed interface Expression permits Constant, Variable, Operation, Application {
+public interface Expression {
 
     /**
      * Return the result of evaluating this expression, substituting any variables with their value
@@ -53,6 +55,12 @@ public sealed interface Expression permits Constant, Variable, Operation, Applic
      * `varName`.
      */
     Expression differentiate(String varName);
+
+    /**
+     * Performs trivial simplifications (involving Constants and Variables) recursively on
+     * expressions to somewhat reduce computation time.
+     */
+    Expression simplify();
 
 }
 

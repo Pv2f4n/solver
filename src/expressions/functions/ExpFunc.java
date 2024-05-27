@@ -1,4 +1,6 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
+import expressions.operations.*;
 
 /**
  * An expression tree node representing the exponential (e^) function.
@@ -34,5 +36,13 @@ public final class ExpFunc extends Application {
     @Override
     public Expression differentiate(String varName) {
         return new MultOperation(this, argument.differentiate(varName));
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new ExpFunc(argument.simplify());
     }
 }

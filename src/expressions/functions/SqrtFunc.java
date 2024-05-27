@@ -1,4 +1,6 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
+import expressions.operations.*;
 
 /**
  * An expression node tree representing the square root function.
@@ -35,5 +37,13 @@ public final class SqrtFunc extends Application {
         Expression firstPart = new MultOperation(new Constant(0.5),
                 new PowOperation(argument, new Constant(-0.5)));
         return new MultOperation(firstPart, argument.differentiate(varName));
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new SqrtFunc(argument.simplify());
     }
 }

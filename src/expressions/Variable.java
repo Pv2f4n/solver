@@ -17,6 +17,13 @@ public final class Variable implements Expression {
     }
 
     /**
+     * Returns the name of this variable.
+     */
+    public String name() {
+        return name;
+    }
+
+    /**
      * Evaluates to value of variable with name `name` in vars. Throws UnboundVariableException if
      * corresponding variable does not exist in vars.
      */
@@ -96,5 +103,13 @@ public final class Variable implements Expression {
     @Override
     public Expression differentiate(String varName) {
         return name.equals(varName) ? new Constant(1.0) : new Constant(0.0);
+    }
+
+    /**
+     * Returns the simplified version of this variable, which is itself.
+     */
+    @Override
+    public Expression simplify() {
+        return this;
     }
 }

@@ -1,4 +1,6 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
+import expressions.operations.*;
 
 /**
  * An expression node tree representing the tangent function.
@@ -35,5 +37,13 @@ public final class TanFunc extends Application {
     public Expression differentiate(String varName) {
         Expression secondPart = new PowOperation(new CosFunc(argument), new Constant(2.0));
         return new DivOperation(argument.differentiate(varName), secondPart);
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new TanFunc(argument.simplify());
     }
 }

@@ -21,6 +21,13 @@ public final class Constant implements Expression {
     }
 
     /**
+     * Returns the value of this Constant.
+     */
+    public double value() {
+        return value;
+    }
+
+    /**
      * Return this node's value.
      */
     @Override
@@ -97,6 +104,14 @@ public final class Constant implements Expression {
     @Override
     public Expression differentiate(String varName) {
         return new Constant(0.0);
+    }
+
+    /**
+     * Returns the simplified version of this Constant, which is itself.
+     */
+    @Override
+    public Expression simplify() {
+        return this;
     }
 
 }

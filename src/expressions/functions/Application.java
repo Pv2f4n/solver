@@ -1,4 +1,5 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
 
 import java.util.Set;
 
@@ -7,8 +8,7 @@ import java.util.Set;
  *  * be implemented in concrete extending subclasses depending on the specific operation.
  *  Subclasses have protected access to all fields.
  */
-public abstract sealed class Application implements Expression permits SqrtFunc, ExpFunc, LogFunc,
-SinFunc, CosFunc, TanFunc, AbsFunc {
+public abstract class Application implements Expression {
     // Function that takes one argument
     protected UnaryFunction func;
     // Argument for the function

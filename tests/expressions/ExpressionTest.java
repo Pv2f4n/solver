@@ -1,4 +1,7 @@
 package expressions;
+import expressions.functions.*;
+import expressions.operations.*;
+
 
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;

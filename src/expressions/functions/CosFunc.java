@@ -1,4 +1,7 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
+import expressions.operations.*;
+
 
 /**
  * An expression tree node representing the cosine function.
@@ -35,5 +38,13 @@ public final class CosFunc extends Application {
     public Expression differentiate(String varName) {
         Expression firstPart = new MultOperation(new Constant(-1.0), new SinFunc(argument));
         return new MultOperation(firstPart, argument.differentiate(varName));
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new CosFunc(argument.simplify());
     }
 }

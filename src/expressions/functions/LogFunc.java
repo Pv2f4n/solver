@@ -1,4 +1,6 @@
-package expressions;
+package expressions.functions;
+import expressions.*;
+import expressions.operations.*;
 
 /**
  * An expression tree node representing the natural logarithm function.
@@ -33,5 +35,13 @@ public final class LogFunc extends Application {
     @Override
     public Expression differentiate(String varName) {
         return new DivOperation(argument.differentiate(varName), argument);
+    }
+
+    /**
+     * Returns the simplified version of this application, which is itself with simplified argument.
+     */
+    @Override
+    public Expression simplify() {
+        return new LogFunc(argument.simplify());
     }
 }
