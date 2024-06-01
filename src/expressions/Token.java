@@ -1,8 +1,6 @@
 package expressions;
-import expressions.functions.*;
-import expressions.operations.*;
 import java.util.Iterator;
-import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 /**
  * Represents a single token (e.g., a number, variable name, operator symbol, function name, or
@@ -30,16 +28,21 @@ public class Token {
     }
 
     /**
-     * Return the sequence of tokens contained in `str`.
+     * Return the sequence of tokens contained in `str_input`. Requires that str_input is non-empty,
+     * i.e. does not contain only whitespace characters. Throws UnreadableCharacterException is
+     * str_input contains a character that is not readable.
      */
-    public static Iterable<Token> tokenizer(String str) throws UnreadableCharacterException {
+    public static Iterator<Token> tokenizer(String str_input) throws UnreadableCharacterException {
+        // Remove all whitespace from string, check that string is non-empty
+        String str = str_input.replaceAll("\\s","");
+        assert !str.isEmpty();
         // First check to make sure string only contains alphanumeric characters and operators
         // or parentheses - can't do this in the iterable itself
         for (int i = 0; i < str.length(); i++) {
             if (!(Character.isLetterOrDigit(str.charAt(i)) || str.substring(i, i + 1).matches(
-                    "[-+*/^()]"))) {throw new UnreadableCharacterException(str.charAt(i));}
+                    "[-+*/^().]"))) {throw new UnreadableCharacterException(str.charAt(i));}
         }
-        return () -> new Iterator<>() {
+        return new Iterator<>() {
             int index = 0;
 
             public boolean hasNext() {
@@ -47,39 +50,47 @@ public class Token {
             }
 
             public Token next() {
-                if (Number.validNumber(str.substring(index, index + 1))) {
-                    int endIdx = index + 1;
-                    while (endIdx < str.length() &&
-                            Number.validNumber(str.substring(index, endIdx + 1))) {
-                        endIdx++;
+                if (hasNext()) {
+                    if (Number.validNumber(String.valueOf(str.charAt(index)))) {
+                        int endIdx = index + 1;
+                        // Need extra check until end because Java's substring excludes last index
+                        if (Number.validNumber(str.substring(index))) {
+                            int oldIdx = index;
+                            index = str.length();
+                            return new Number(str.substring(oldIdx));
+                        }
+                        while (endIdx < str.length() &&
+                                Number.validNumber(str.substring(index, endIdx + 1))) {
+                            endIdx++;
+                        }
+                        int oldIdx = index;
+                        index = endIdx;
+                        return new Number(str.substring(oldIdx, endIdx));
+                    } else if (Operator.validOperator(String.valueOf(str.charAt(index)))) {
+                        int oldIdx = index;
+                        index++;
+                        return new Operator(String.valueOf(str.charAt(oldIdx)));
+                    } else if (str.charAt(index) == '(') {
+                        index++;
+                        return new LeftParen();
+                    } else if (str.charAt(index) == ')') {
+                        index++;
+                        return new RightParen();
+                    } else if (str.substring(index).matches("(abs|exp|log|sin|cos|tan).*")) {
+                        int oldIdx = index;
+                        index += 3;
+                        return new Function(str.substring(oldIdx, oldIdx + 3));
+                    } else if (str.substring(index).matches("(sqrt).*")) {
+                        int oldIdx = index;
+                        index += 4;
+                        return new Function(str.substring(oldIdx, oldIdx + 4));
+                    } else {
+                        // Otherwise must be a letter
+                        int oldIdx = index;
+                        index += 1;
+                        return new Variable(String.valueOf(str.charAt(oldIdx)));
                     }
-                    int oldIdx = index;
-                    index = endIdx;
-                    return new Number(str.substring(oldIdx, endIdx));
-                } else if (Operator.validOperator(str.substring(index, index + 1))) {
-                    int oldIdx = index;
-                    index++;
-                    return new Operator(str.substring(oldIdx, oldIdx + 1));
-                } else if (str.charAt(index) == '(') {
-                    index++;
-                    return new LeftParen();
-                } else if (str.charAt(index) == ')') {
-                    index++;
-                    return new RightParen();
-                } else if (str.substring(index).matches("(abs|exp|log|sin|cos|tan).*")) {
-                    int oldIdx = index;
-                    index += 3;
-                    return new Function(str.substring(oldIdx, oldIdx + 3));
-                } else if (str.substring(index).matches("(sqrt).*")) {
-                    int oldIdx = index;
-                    index +=4;
-                    return new Function(str.substring(oldIdx, oldIdx + 4));
-                } else {
-                    // Otherwise must be a letter
-                    int oldIdx = index;
-                    index += 1;
-                    return new Variable(str.substring(oldIdx, oldIdx + 1));
-                }
+                } else {throw new NoSuchElementException();}
             }
         };
     }
