@@ -142,4 +142,29 @@ class ParsingTest {
                 new Variable("x"), new PowOperation(new Constant(0.3), new Variable("y"))),
                 new Constant(2.0))));
     }
+
+    @Test
+    @DisplayName("When a subtraction operator is used as a negative sign, it is parsed as such and "
+            + "the resulting expression is correct")
+    void testNeg() throws UnreadableCharacterException, IncompleteExpressionException{
+        Expression expr1 = InputParser.parse("-1-x");
+        assertEquals(expr1, new SubOperation(new MultOperation(new Constant(-1.0), new Constant(1.0)),
+                new Variable("x")));
+
+        Expression expr2 = InputParser.parse("-(3 * x /2)");
+        assertEquals(expr2, new MultOperation(new Constant(-1.0), new DivOperation(new MultOperation(
+                new Constant(3.0), new Variable("x")), new Constant(2.0))));
+
+        Expression expr3 = InputParser.parse("15.3 * -x*y^-3");
+        assertEquals(expr3, new MultOperation(new MultOperation(new Constant(15.3),
+                new MultOperation(new Constant(-1.0), new Variable("x"))),
+                new PowOperation(new Variable("y"), new MultOperation(new Constant(-1.0),
+                        new Constant(3.0)))));
+
+        Expression expr4 = InputParser.parse("--x + --(3.2-y)");
+        assertEquals(expr4, new AddOperation(new MultOperation(new Constant(-1.0),
+                new MultOperation(new Constant(-1.0), new Variable("x"))),
+                new MultOperation(new Constant(-1.0), new MultOperation(new Constant(-1.0),
+                        new SubOperation(new Constant(3.2), new Variable("y"))))));
+    }
 }

@@ -13,18 +13,21 @@ import java.util.HashMap;
 public class InputParser {
 
     /**
-     * Associates each binary operation with its precedence (1 being the lowest, 3 the highest) and
-     * its associativity (0 for left, 1 for right).
+     * Associates each binary operation with its precedence (1 being the lowest, 3 the highest)
+     * and its associativity (0 for left, 1 for right).
      */
-    public static final Map<String, int[]> opMap;
-        static {
-            opMap = new HashMap<>();
-            opMap.put("+", new int[]{1, 0});
-            opMap.put("-", new int[]{1, 0});
-            opMap.put("*", new int[]{2, 0});
-            opMap.put("/", new int[]{2, 0});
-            opMap.put("^", new int[]{3, 1});
-        }
+    private static final Map<String, int[]> opMap;
+
+    // Static constructor to initialize opMap and isEven
+    static {
+        opMap = new HashMap<>();
+        opMap.put("+", new int[]{1, 0});
+        opMap.put("-", new int[]{1, 0});
+        opMap.put("*", new int[]{2, 0});
+        opMap.put("/", new int[]{2, 0});
+        opMap.put("^", new int[]{3, 1});
+    }
+
     /**
      * Parses the given input string `exprString` into its corresponding expression tree. Throws
      * UnreadableCharacterException if exprString contains a character that cannot be parsed.
@@ -47,10 +50,24 @@ public class InputParser {
             IncompleteExpressionException {
         Token tok = tokenizer.curTok();
         // Input token should be left parenthesis, variable, or number
+
         if (tok == null) {
             throw new IncompleteExpressionException("expression ended unexpectedly");
-        } else if (tok instanceof Operator) {
-            throw new IncompleteExpressionException("expected atom, not an operator");
+        } else if (tok instanceof Token.Operator) {
+            // Case of subtraction operator acting as negative sign
+            if (tok.value().equals("-")) {
+                // Check that there is something to the right of the negative sign
+                if (!(tokenizer.hasNext())) {
+                    throw new IncompleteExpressionException("hanging negative sign");
+                }
+                tokenizer.next();
+                // Compute next atom without compute_expr and then add the negative sign in front
+                // of it
+                return new MultOperation(new Constant(-1.0), compute_atom(tokenizer));
+            } else {
+                throw new IncompleteExpressionException("expected atom, parentheses, or negative "
+                        + "sign, not other operator");
+            }
         } else if (tok instanceof Token.RightParen) {
             throw new IncompleteExpressionException("unmatched right parenthesis");
         } else if (tok instanceof Token.LeftParen) {
@@ -157,7 +174,7 @@ public class InputParser {
     public static void main(String[] args) {
         // Basic tests
         try {
-            Expression test = parse("5*4+7^2- sqrt(36)");
+            Expression test = parse("--5 + --(3.2-2)");
             System.out.println(test.eval(MapVarTable.empty()));
         } catch (UnreadableCharacterException | UnboundVariableException |
                  IncompleteExpressionException e) {
