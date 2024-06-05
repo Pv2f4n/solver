@@ -3,8 +3,6 @@ package expressions;
 import expressions.functions.*;
 import expressions.operations.*;
 
-
-import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -144,8 +142,7 @@ class ParsingTest {
     }
 
     @Test
-    @DisplayName("When a subtraction operator is used as a negative sign, it is parsed as such and "
-            + "the resulting expression is correct")
+    @DisplayName("When a subtraction operator is used as a negative sign, it is parsed as such")
     void testNeg() throws UnreadableCharacterException, IncompleteExpressionException{
         Expression expr1 = InputParser.parse("-1-x");
         assertEquals(expr1, new SubOperation(new MultOperation(new Constant(-1.0), new Constant(1.0)),
@@ -166,5 +163,29 @@ class ParsingTest {
                 new MultOperation(new Constant(-1.0), new Variable("x"))),
                 new MultOperation(new Constant(-1.0), new MultOperation(new Constant(-1.0),
                         new SubOperation(new Constant(3.2), new Variable("y"))))));
+    }
+
+    @Test
+    @DisplayName("When a parenthesized expression, variable, or function is used directly after "
+            + "another atom, this is parsed as a multiplication between the two")
+    void testMultShorthand() throws UnreadableCharacterException, IncompleteExpressionException{
+        Expression expr1 = InputParser.parse("3x");
+        assertEquals(expr1, new MultOperation(new Constant(3.0), new Variable("x")));
+
+        Expression expr2 = InputParser.parse("3.2 y - 4 sin(5.01)");
+        assertEquals(expr2, new SubOperation(new MultOperation(new Constant(3.2),
+                new Variable("y")), new MultOperation(new Constant(4.0),
+                new SinFunc(new Constant(5.01)))));
+
+        Expression expr3 = InputParser.parse("3.2 y - 4 sin(5.01) *xlog(y)");
+        assertEquals(expr3, new SubOperation(new MultOperation(new Constant(3.2),
+                new Variable("y")), new MultOperation(new MultOperation(new MultOperation(
+                        new Constant(4.0), new SinFunc(new Constant(5.01))), new Variable("x")),
+                new LogFunc(new Variable("y")))));
+
+        Expression expr4 = InputParser.parse("x (3tan(y) + 5(2/x))");
+        assertEquals(expr4, new MultOperation(new Variable("x"), new AddOperation(new MultOperation(
+                new Constant(3.0), new TanFunc(new Variable("y"))), new MultOperation(
+                        new Constant(5.0), new DivOperation(new Constant(2.0), new Variable("x"))))));
     }
 }

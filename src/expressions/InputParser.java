@@ -1,9 +1,6 @@
 package expressions;
 import expressions.functions.*;
 import expressions.operations.*;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.function.ToDoubleBiFunction;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -41,15 +38,14 @@ public class InputParser {
     }
 
     /**
-     * Helper function for compute_expr. Deals with single numbers, variables, and parenthesized
-     * expressions, including function arguments. Throws IncompleteExpressionException if the
-     * input string's mathematical expression is invalid, e.g. operators missing operands or
-     * unmatched parentheses.
+     * Helper function for compute_expr. Deals with single numbers and variables (including
+     * negated terms), as well as parenthesized expressions, including function arguments. Throws
+     * IncompleteExpressionException if the input string's mathematical expression is invalid, e.g.
+     * operators missing operands or unmatched parentheses.
      */
     private static Expression compute_atom(Tokenizer tokenizer) throws
             IncompleteExpressionException {
         Token tok = tokenizer.curTok();
-        // Input token should be left parenthesis, variable, or number
 
         if (tok == null) {
             throw new IncompleteExpressionException("expression ended unexpectedly");
@@ -65,8 +61,8 @@ public class InputParser {
                 // of it
                 return new MultOperation(new Constant(-1.0), compute_atom(tokenizer));
             } else {
-                throw new IncompleteExpressionException("expected atom, parentheses, or negative "
-                        + "sign, not other operator");
+                throw new IncompleteExpressionException("expected number, variable, parentheses, "
+                        + "or negative sign, not other operator");
             }
         } else if (tok instanceof Token.RightParen) {
             throw new IncompleteExpressionException("unmatched right parenthesis");
@@ -140,42 +136,63 @@ public class InputParser {
         tokenizer.next();
         while (true) {
             Token tok = tokenizer.curTok();
-            // Non-null and not instanceof Operator should only occur at a right parenthesis
-            // since for now different atom tokens cannot be adjacent to each other
-            if (tok == null || !(tok instanceof Token.Operator) ||
-                    opMap.get(tok.value())[0] < min_prec) {
+            // Break if tok is null (end of expression) or a right parenthesis (finished evaluating
+            // parenthesized expression)
+            if (tok == null || tok instanceof Token.RightParen) {
                 break;
+            } else if (tok instanceof Token.Number) {
+                throw new IncompleteExpressionException("Number cannot be placed directly to the "
+                        + "right of an atom without a connecting operator");
             }
-            String operator = tok.value();
-            int prec = opMap.get(tok.value())[0];
-            int assoc = opMap.get(tok.value())[1];
-            // Precedence climbing step, depends on associativity of operator
-            int nextMinPrec = (assoc == 0) ? prec + 1 : prec;
-            if (!(tokenizer.hasNext())) {
-                throw new IncompleteExpressionException("operation does not have right operand");
+            // Treat lack of operator as multiplication between left and right term when right
+            // term is a parenthesized expression, variable, or function
+            else if (tok instanceof Token.LeftParen || tok instanceof Token.Variable ||
+            tok instanceof Token.Function) {
+                // Stop evaluation and return if precedence of multiplication is less than minimum
+                // precedence
+                if (2 < min_prec) {break;}
+                // Otherwise treat as if there is an invisible multiplication operator there
+                Expression right = compute_expr(tokenizer, 3);
+                left = new MultOperation(left, right);
+            } else {
+                assert tok instanceof Token.Operator;
+                // Stop evaluation and return if precedence of next operator is less than minimum
+                // precedence
+                if (opMap.get(tok.value())[0] < min_prec) {
+                    break;
+                }
+                String operator = tok.value();
+                int prec = opMap.get(tok.value())[0];
+                int assoc = opMap.get(tok.value())[1];
+                // Precedence climbing step, depends on associativity of operator
+                int nextMinPrec = (assoc == 0) ? prec + 1 : prec;
+                if (!(tokenizer.hasNext())) {
+                    throw new IncompleteExpressionException(
+                            "operation does not have right operand");
+                }
+                // Recursive step: move on to next token
+                tokenizer.next();
+                Expression right = compute_expr(tokenizer, nextMinPrec);
+                left = switch (operator) {
+                    case "+" -> new AddOperation(left, right);
+                    case "-" -> new SubOperation(left, right);
+                    case "*" -> new MultOperation(left, right);
+                    case "/" -> new DivOperation(left, right);
+                    case "^" -> new PowOperation(left, right);
+                    // This shouldn't happen, since the operator tokens yielded by the tokenizer can
+                    // only have the above names
+                    default -> throw new IncompleteExpressionException("operator value does not "
+                            + "correspond to valid operator");
+                };
             }
-            // Recursive step: move on to next token
-            tokenizer.next();
-            Expression right = compute_expr(tokenizer, nextMinPrec);
-            left = switch (operator) {
-                case "+" -> new AddOperation(left, right);
-                case "-" -> new SubOperation(left, right);
-                case "*" -> new MultOperation(left, right);
-                case "/" -> new DivOperation(left, right);
-                case "^" -> new PowOperation(left, right);
-                // This shouldn't happen, since the operator tokens yielded by the tokenizer can
-                // only have the above names
-                default -> throw new IncompleteExpressionException("operator value does not "
-                        + "correspond to valid operator");
-            };
         }
         return left;
     }
     public static void main(String[] args) {
         // Basic tests
         try {
-            Expression test = parse("--5 + --(3.2-2)");
-            System.out.println(test.eval(MapVarTable.empty()));
+            Expression test = parse("x (3tan(y) + 5(2/x))");
+            System.out.println(test.eval(MapVarTable.of("x", 2.0, "y", 5.2)));
         } catch (UnreadableCharacterException | UnboundVariableException |
                  IncompleteExpressionException e) {
             throw new RuntimeException(e);
