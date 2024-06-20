@@ -1,5 +1,7 @@
 package expressions;
 
+import expressions.exceptions.*;
+
 import java.util.HashSet;
 import java.util.Set;
 

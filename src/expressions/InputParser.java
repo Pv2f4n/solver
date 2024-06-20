@@ -1,6 +1,12 @@
 package expressions;
+
 import expressions.functions.*;
 import expressions.operations.*;
+import expressions.exceptions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import solving.*;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -190,11 +196,26 @@ public class InputParser {
     }
     public static void main(String[] args) {
         // Basic tests
+        double[][] mat = {{1, 2, 1, -4, 1}, {1, 2, -1, 2, -1}, {2, 4, 1, -5, 1}, {1, 2, 3, -10, 2}};
+        double[] vec = {0, 0, 0, 0};
         try {
-            Expression test = parse("x (3tan(y) + 5(2/x))");
-            System.out.println(test.eval(MapVarTable.of("x", 2.0, "y", 5.2)));
-        } catch (UnreadableCharacterException | UnboundVariableException |
-                 IncompleteExpressionException e) {
+            ArrayList<String> ans2 = SystemSolver.linear_solve_general(mat, vec);
+            for (String equation : ans2) {
+                System.out.println(equation);
+            }
+        } catch (SolvingException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            Expression[] expressions = {parse("(3x^2-3)/(1+y^2)-2xz+2z"),
+                    parse("2yz+((2y)(x^3-3x))/(1+y^2)^2"), parse("(x-1)^2+y^2-9")};
+            String[] vars = {"x", "y", "z"};
+            double[] start = {-1.8,0.2,-1};
+            double[] output = SystemSolver.nonlinear_solve(expressions, vars, start);
+            for (int i = 0; i < 3; i++) {
+                System.out.println(output[i]);
+            }
+        } catch (UnreadableCharacterException | IncompleteExpressionException | SolvingException e) {
             throw new RuntimeException(e);
         }
     }

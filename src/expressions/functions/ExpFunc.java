@@ -1,6 +1,8 @@
 package expressions.functions;
+
 import expressions.*;
 import expressions.operations.*;
+import expressions.exceptions.*;
 
 /**
  * An expression tree node representing the exponential (e^) function.

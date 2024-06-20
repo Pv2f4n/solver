@@ -2,6 +2,7 @@ package expressions;
 
 import expressions.functions.*;
 import expressions.operations.*;
+import expressions.exceptions.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

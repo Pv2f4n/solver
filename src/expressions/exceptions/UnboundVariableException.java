@@ -1,4 +1,4 @@
-package expressions;
+package expressions.exceptions;
 
 /**
  * Indicates that a variable needed to be evaluated, but no value had been assigned to it.
