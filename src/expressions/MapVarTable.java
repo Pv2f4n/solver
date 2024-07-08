@@ -1,5 +1,7 @@
 package expressions;
 
+import expressions.exceptions.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +49,21 @@ public class MapVarTable implements VarTable {
         MapVarTable ans = new MapVarTable();
         ans.set(name1, value1);
         ans.set(name2, value2);
+        return ans;
+    }
+
+    /**
+     * Create a MapVarTable associating the variables in `vars` with their values in `values`,
+     * matching corresponding indices. Requires `vars` and `values` have the same length.
+     */
+    public static MapVarTable of(String[] vars, double[] values) {
+        assert vars.length == values.length;
+
+        MapVarTable ans = new MapVarTable();
+        for (int i = 0; i < vars.length; i++) {
+            assert vars[i] != null;
+            ans.set(vars[i], values[i]);
+        }
         return ans;
     }
 

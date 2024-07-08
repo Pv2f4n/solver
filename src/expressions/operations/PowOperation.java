@@ -1,6 +1,8 @@
 package expressions.operations;
+
 import expressions.*;
 import expressions.functions.*;
+import expressions.exceptions.*;
 
 /**
  * An expression tree node representing the power operation.

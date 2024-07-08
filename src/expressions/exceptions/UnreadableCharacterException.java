@@ -1,4 +1,4 @@
-package expressions;
+package expressions.exceptions;
 
 /**
  * Indicates that a character not corresponding to any allowed token types is present in an

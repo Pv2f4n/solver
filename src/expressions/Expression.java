@@ -1,6 +1,6 @@
 package expressions;
-import expressions.functions.*;
-import expressions.operations.*;
+
+import expressions.exceptions.*;
 
 import java.util.Set;
 

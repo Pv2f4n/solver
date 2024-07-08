@@ -1,5 +1,7 @@
 package expressions;
 
+import expressions.exceptions.*;
+
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 

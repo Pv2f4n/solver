@@ -1,4 +1,7 @@
 package expressions;
+
+import expressions.exceptions.*;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

@@ -1,6 +1,8 @@
 package expressions.functions;
+
 import expressions.*;
 import expressions.operations.*;
+import expressions.exceptions.*;
 
 /**
  * An expression node tree representing the square root function.

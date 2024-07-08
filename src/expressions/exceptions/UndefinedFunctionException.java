@@ -1,4 +1,4 @@
-package expressions;
+package expressions.exceptions;
 
 /**
  * Indicates that a function name was encountered during parsing that had no known definition.
